@@ -1,0 +1,32 @@
+import json
+import hashlib
+from config import files_to_monitor
+
+# Generate SHA-256 hash for a file
+def generate_file_hash(filepath):
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(filepath, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        print(f"Error: {filepath} not found.")
+        return None
+
+# Save hashes to JSON file
+def save_hashes(file_hashes, filename="file_hashes.json"):
+    with open(filename, "w") as file:
+        json.dump(file_hashes, file)
+
+# Generate and save baseline hashes
+def create_baseline():
+    # Generate hashes for each monitored file
+    file_hashes = {filepath: generate_file_hash(filepath) for filepath in files_to_monitor}
+    # Save the baseline hashes to a JSON file
+    save_hashes(file_hashes)
+    print("Baseline hashes created and saved to file_hashes.json.")
+
+# Run the function to create the baseline
+create_baseline()
+	
